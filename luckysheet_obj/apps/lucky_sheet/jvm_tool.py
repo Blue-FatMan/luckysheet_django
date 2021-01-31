@@ -10,8 +10,11 @@
 """
 
 import jpype
+import os
 
-jarpath = r"C:\Users\Lenovo\Desktop\luckysheet_obj\apps\lucky_sheet\java-utils.jar"  # 第二个参数是jar包的路径
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
+jarpath = os.path.join(base_dir, "java-utils.jar")  # 第二个参数是jar包的路径
 jpype.startJVM(jpype.getDefaultJVMPath(), "-ea", "-Djava.class.path=%s" % (jarpath))  # 启动jvm
 JDClass = jpype.JClass("com.demo.utils.PakoGzipUtils")
 jpython_obj = JDClass()  # 创建类的实例，可以调用类里边的方法
