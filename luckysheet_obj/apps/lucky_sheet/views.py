@@ -2,7 +2,6 @@ from django.shortcuts import render
 from django.views.generic.base import View
 from django.http import HttpResponse, JsonResponse
 from django.contrib import auth
-
 import os
 import json
 

@@ -130,3 +130,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # 媒体文件收集
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+import dwebsocket
+
+# 为所有的URL提供websocket，如果只是单独的视图需要可以不选
+MIDDLEWARE_CLASSES = ['dwebsocket.middleware.WebSocketMiddleware']
+# 可以允许每一个单独的视图实用websockets
+WEBSOCKET_ACCEPT_ALL = True
