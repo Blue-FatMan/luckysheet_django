@@ -47,22 +47,18 @@ def websocket_update_url(request):
                 res = json.loads(str(res))
                 new_msg = {
                     "createTime": int(time.time() * 1000),
-                    "data": "%s".replace("'", "\"") % res,
+                    "data": json.dumps(res),
                     "id": "%s" % userid,
                     "returnMessage": "success",
                     "status": "0",
                     "type": 2,
                     "username": userid
                 }
-                # return HttpResponse(json.dumps(new_msg), content_type='application/json')
-                # request.websocket.send(bytes('{}'.format(new_msg), 'utf-8'))  # 发送消息到客户端
-                # request.websocket.send(json.dumps(new_msg))  # 发送消息到客户端
                 for _client in WEB_SOCKET_CLIENT:
                     # 把自己的操作去掉，只给别的客户端更新操作
                     if _client != userid:
                         print("sed to %s" % _client)
                         request = WEB_SOCKET_CLIENT.get(_client)
                         print("the web socket receive message message is: ", new_msg)
-                        # request.send(json.dumps(new_msg))  # 发送消息到客户端
                         request.send(json.dumps(new_msg))  # 发送消息到客户端
                         # request.send(bytes('{}'.format(new_msg), 'utf-8'))
