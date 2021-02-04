@@ -1,5 +1,7 @@
 # luckysheet_django
 luckysheet + django实现多人在线协同操作excel
+
+QQ交流群: 697107880
 ```使用方法
 使用起步：
 1、安装python3.7
