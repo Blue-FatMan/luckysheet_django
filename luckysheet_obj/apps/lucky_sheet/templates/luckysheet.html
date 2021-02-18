@@ -1,6 +1,5 @@
 {% load static %}
 
-
 <!DOCTYPE html>
 <html>
 <head lang="zh">
@@ -13,12 +12,20 @@
     />
     <title>Luckysheet</title>
 
-    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/luckysheet/dist/plugins/css/pluginsCss.css'/>
-    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/luckysheet/dist/plugins/plugins.css'/>
-    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/luckysheet/dist/css/luckysheet.css'/>
-    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/luckysheet/dist/assets/iconfont/iconfont.css'/>
-    <script src="https://cdn.jsdelivr.net/npm/luckysheet/dist/plugins/js/plugin.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/luckysheet/dist/luckysheet.umd.js"></script>
+{#    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/luckysheet/dist/plugins/css/pluginsCss.css'/>#}
+{#    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/luckysheet/dist/plugins/plugins.css'/>#}
+{#    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/luckysheet/dist/css/luckysheet.css'/>#}
+{#    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/luckysheet/dist/assets/iconfont/iconfont.css'/>#}
+{#    <script src="https://cdn.jsdelivr.net/npm/luckysheet/dist/plugins/js/plugin.js"></script>#}
+{#    <script src="https://cdn.jsdelivr.net/npm/luckysheet/dist/luckysheet.umd.js"></script>#}
+
+    <link rel='stylesheet' href='{% static "dist/plugins/css/pluginsCss.css" %}'/>
+    <link rel='stylesheet' href='{% static "dist/plugins/plugins.css" %}'/>
+    <link rel='stylesheet' href='{% static "dist/css/luckysheet.css" %}'/>
+    <link rel='stylesheet' href='{% static "dist/assets/iconfont/iconfont.css" %}'/>
+    <script src='{% static "dist/plugins/js/plugin.js" %}'></script>
+    <script src='{% static "dist/luckysheet.umd.js" %}'></script>
+
 </head>
 
 <body>
