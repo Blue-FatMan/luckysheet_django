@@ -6,6 +6,14 @@ QQ交流群: 697107880
 使用起步：
 1、安装python3.7
 2、安装jdk，建议jdk8，因为我使用的就是该版本,因为当前py3的解压有bug (https://bugs.python.org/issue24301)
+3、安装node.js
+    安装
+    npm install
+    npm install gulp -g
+    开发
+    npm run dev
+    打包
+    npm run build
 ```
 ### 当前问题
 1、新建一个sheet页的时候，如果别的客户端不点击这个新页面一下电话，那新建一方在新sheet页面的修改就不会被同步到其他客户端。因此别的客户端必须点击

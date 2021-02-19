@@ -45,6 +45,7 @@ def websocket_update_url(request):
                 jpy = jvm_tool.jpython_obj
                 res = jpy.unCompressURI(message)
                 res = json.loads(str(res))
+                print(res)
                 new_msg = {
                     "createTime": int(time.time() * 1000),
                     "data": json.dumps(res),
