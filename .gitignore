@@ -2,3 +2,6 @@
 *.idea
 pako-master
 ecsheet-main
+docs
+.vs
+.github
