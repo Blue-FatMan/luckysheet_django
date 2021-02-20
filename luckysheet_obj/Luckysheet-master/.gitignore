@@ -3,6 +3,6 @@ node_modules
 package-lock.json
 dist
 docs/.vuepress/dist
-docs
-.vs
-.github
+./docs
+./.vs
+./.github
