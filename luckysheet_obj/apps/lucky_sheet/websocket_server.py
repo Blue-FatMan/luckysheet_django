@@ -16,11 +16,41 @@ import json
 import uuid
 import time
 from lucky_sheet import jvm_tool
+from lucky_sheet.log import logger
 
 WEB_SOCKET_CLIENT = dict()
 
 
 # https://blog.csdn.net/qq_36387683/article/details/99644041
+
+
+# 发送websocket消息
+def send_websocket_message(userid, res):
+    # 添加多人协同编辑的时候，给其他人选区的位置标红
+    # type: # 0：连接成功，1：发送给当前连接的用户，2：发送信息给其他用户，3：发送选区位置信息，999：用户连接断开
+    t = res.get("t", None)
+    if "mv" == t:
+        __type = 3
+    else:
+        __type = 2
+    new_msg = {
+        "createTime": int(time.time() * 1000),
+        "data": json.dumps(res),
+        "id": "%s" % userid,
+        "returnMessage": "success",
+        "status": "0",
+        "type": __type,
+        "username": userid
+    }
+    for _client in WEB_SOCKET_CLIENT:
+        # 把自己的操作去掉，只给别的客户端更新操作
+        if _client != userid:
+            logger.info("sed to %s" % _client)
+            request = WEB_SOCKET_CLIENT.get(_client)
+            # print("the web socket receive message message is: ", new_msg)
+            request.send(json.dumps(new_msg))  # 发送消息到客户端
+
+
 @accept_websocket
 def websocket_update_url(request):
     userid = str(uuid.uuid1())
@@ -30,36 +60,30 @@ def websocket_update_url(request):
     if not request.is_websocket():  # 判断是不是websocket连接
         return HttpResponse("the request is not a websocket request!!!")
     else:
+        logger.info("txt message---")
         for message in request.websocket:
             # 如果什么都没收到那就判定为客户端退出了
             if not message:
-                print("the userid:%s has exit!!!" % userid)
+                logger.info("the userid:%s has exit!!!" % userid)
                 WEB_SOCKET_CLIENT[userid].close()
                 del WEB_SOCKET_CLIENT[userid]
                 return HttpResponse("the userid:%s has exit!!!" % userid)
             # 如果客户端长时间不活动，则会自动发送一个“rub”字符串到后台，因此做个过滤
             if "rub" in str(message):
-                print(message)
+                logger.info(message)
                 WEB_SOCKET_CLIENT[userid].send(message)
             else:
                 jpy = jvm_tool.jpython_obj
                 res = jpy.unCompressURI(message)
                 res = json.loads(str(res))
-                print(res)
-                new_msg = {
-                    "createTime": int(time.time() * 1000),
-                    "data": json.dumps(res),
-                    "id": "%s" % userid,
-                    "returnMessage": "success",
-                    "status": "0",
-                    "type": 2,
-                    "username": userid
-                }
-                for _client in WEB_SOCKET_CLIENT:
-                    # 把自己的操作去掉，只给别的客户端更新操作
-                    if _client != userid:
-                        print("sed to %s" % _client)
-                        request = WEB_SOCKET_CLIENT.get(_client)
-                        print("the web socket receive message message is: ", new_msg)
-                        request.send(json.dumps(new_msg))  # 发送消息到客户端
-                        # request.send(bytes('{}'.format(new_msg), 'utf-8'))
+                logger.info(res)
+                send_websocket_message(userid, res)
+
+
+# 处理ajax接收到的图片消息
+def websocket_update_image_url(request):
+    logger.info("images message---")
+    res = json.loads(request.body)
+    userid = res.get("username", "None")
+    send_websocket_message(userid, res)
+    return HttpResponse("send images success!!!")

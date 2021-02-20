@@ -4,6 +4,7 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib import auth
 import os
 import json
+from lucky_sheet.log import logger
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -18,7 +19,12 @@ def IndexView(request):
 
 
 def luckysheet_update_url(request):
-    websocket_server.websocket_update_url(request)
+    if request.method == "GET":
+        return (websocket_server.websocket_update_url(request))
+    elif request.method == "POST":
+        return (websocket_server.websocket_update_image_url(request))
+    else:
+        return HttpResponse("error")
 
 
 class LuckySheetIndex(View):
@@ -31,10 +37,10 @@ class LuckySheetIndex(View):
 
 class LuckySheetLoadUrl(View):
     def get(self, request):
-        print("get request")
+        logger.info("get request")
         return HttpResponse({})
 
     def post(self, request):
-        print("post request")
+        logger.info("post request")
         init_json = init_sheet.init_sheet_json
         return HttpResponse('%s' % init_json)

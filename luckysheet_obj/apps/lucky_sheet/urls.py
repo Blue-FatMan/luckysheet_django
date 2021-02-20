@@ -18,10 +18,14 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import url, include
 from lucky_sheet.views import IndexView, LuckySheetIndex, LuckySheetLoadUrl, luckysheet_update_url
+from django.conf import settings
+from django.views import static
+from django.conf.urls.static import static as media_static
 
 urlpatterns = [
     url(r'^$', IndexView, name='index_view'),  # 主页,测试使用
     url(r'^luckysheetindex/$', LuckySheetIndex.as_view(), name="lucky_sheet_index"),  # luckysheet主页
     url(r'^luckysheetloadurl/', LuckySheetLoadUrl.as_view(), name="lucky_sheet_loadurl"),  # lucky_sheet_loadurl
     url(r'^luckysheetupdateurl', luckysheet_update_url, name="luckysheet_update_url"),  # lucky_sheet_loadurl
+    url(r'^luckysheetindex/static/(?P<path>.*)$', static.serve, {'document_root': settings.STATIC_ROOT}, name='static'),
 ]
