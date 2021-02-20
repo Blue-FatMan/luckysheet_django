@@ -1,6 +1,8 @@
 # luckysheet_django
 luckysheet + django实现多人在线协同操作excel
 
+[演示地址](http://49.234.35.155:8080/luckysheetindex/) http://49.234.35.155:8080/luckysheetindex/
+
 QQ交流群: 697107880
 ```使用方法
 使用起步：
