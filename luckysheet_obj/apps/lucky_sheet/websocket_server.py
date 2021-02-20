@@ -42,7 +42,7 @@ def send_websocket_message(userid, res):
         "type": __type,
         "username": userid
     }
-    for _client in WEB_SOCKET_CLIENT:
+    for _client in list(WEB_SOCKET_CLIENT.keys()):
         # 把自己的操作去掉，只给别的客户端更新操作
         if _client != userid:
             logger.info("sed to %s" % _client)
