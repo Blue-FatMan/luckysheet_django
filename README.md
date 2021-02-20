@@ -15,6 +15,14 @@ QQ交流群: 697107880
     打包
     npm run build
 ```
+### 解决大图片无法通过wss传输的方法：
+```
+源码 https://github.com/mengshukeji/Luckysheet
+修改如下：
+1、 src\controllers\constant.js 里面将加载图片的路径改为 image://static/css/loading.gif
+2、 src\controllers\server.js  里面将图片发送方式改为ajax发送
+```
+
 ### 当前问题
 1、新建一个sheet页的时候，如果别的客户端不点击这个新页面一下电话，那新建一方在新sheet页面的修改就不会被同步到其他客户端。因此别的客户端必须点击
 一下新的sheet页，才能把新sheet页的修改同步过来。--2021/02/01
