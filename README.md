@@ -20,10 +20,41 @@ QQ交流群: 697107880
 ### 解决大图片无法通过wss传输的方法：
 ```
 源码 https://github.com/mengshukeji/Luckysheet
-修改如下：
-1、 src\controllers\constant.js 里面将加载图片的路径改为 image://static/css/loading.gif
-2、 src\controllers\server.js  里面将图片发送方式改为ajax发送
+解决方案：
+        1.首先config里面添加自定义图片的发送配置
+        2.把该配置添加到core.js里面
+        3.添加一个自定义js文件，把发送图片函数写进去
+        4.server.js里面修改原来的wss发送配置
 ```
+详细修改如下：
+######1、 config里面添加自定义图片的发送配置, [点击查看config.js](./luckysheet_obj/Luckysheet-master/src/core.js)
+```angular2html
+bigImageUpdateMethod:{"method":"POST", "url":"http://127.0.0.1:8000/luckysheetupdateurl"},  //自定义前端大图片大发送方式
+```
+![config配置](./readmeImages/config自定义图片配置.png)
+######2、 把该配置添加到core.js里面, [点击查看core.js](./luckysheet_obj/Luckysheet-master/src/core.js)
+```angular2html
+luckysheetConfigsetting.bigImageSendMethod = extendsetting.bigImageUpdateMethod;
+```
+![core自定义图片配置](./readmeImages/core自定义图片配置.png)
+######3、 src/controllers/里面添加一个自定义js文件，把发送图片函数写进去
+代码块较多，详细请查看 [src/controllers/bigImageUpdate.js](./luckysheet_obj/Luckysheet-master/src/controllers/bigImageUpdate.js)
+
+![自定义图片发送方式](./readmeImages/自定义图片发送方式.png)
+
+######4、 src/controllers/server.js  里面修改原来的wss发送配置
+4.1 顶部导入所需变量、函数
+   ```
+   import luckysheetConfigsetting from './luckysheetConfigsetting';
+   import {customBigImageUpdate} from './bigImageUpdate'
+   ```
+4.2 修改wss发送方式，代码较多，详细参考 [src/controllers/server.js](./luckysheet_obj/Luckysheet-master/src/controllers/server.js)
+
+![自定义图片发送方式](./readmeImages/微信截图_20210302010044.png)
+![自定义图片发送方式](./readmeImages/微信截图_20210302010418.png)
+
+### 初始化加载excel的效果图加载失败
+1、 src\controllers\constant.js 里面将加载图片的路径改为 image://static/css/loading.gif
 
 ### 当前问题
 1、新建一个sheet页的时候，如果别的客户端不点击这个新页面一下电话，那新建一方在新sheet页面的修改就不会被同步到其他客户端。因此别的客户端必须点击
