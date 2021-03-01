@@ -70,8 +70,12 @@ def websocket_update_url(request):
                 return HttpResponse("the userid:%s has exit!!!" % userid)
             # 如果客户端长时间不活动，则会自动发送一个“rub”字符串到后台，因此做个过滤
             if "rub" in str(message):
+                res = {
+                    "data": "rub",
+                    "returnMessage": "success",
+                }
                 logger.info(message)
-                WEB_SOCKET_CLIENT[userid].send(message)
+                WEB_SOCKET_CLIENT[userid].send(json.dumps(res))
             else:
                 jpy = jvm_tool.jpython_obj
                 res = jpy.unCompressURI(message)
