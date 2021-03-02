@@ -137,9 +137,9 @@ const server = {
         //     _this.websocket.send(msg);
         // }
 
-        // QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ 禁止图片使用websocket传输，自定义使用ajax传输
-        const customConfig = luckysheetConfigsetting.bigImageSendMethod
-        if (JSON.stringify(customConfig) !== "{}") {
+        // TODO 使用自定义方式同步图片
+        const customImgUpdateConfig = luckysheetConfigsetting.bigImageUpdateMethod
+        if (JSON.stringify(customImgUpdateConfig) !== "{}") {
             if ("images" != d.k) {
                 let msg = pako.gzip(encodeURIComponent(JSON.stringify(d)), {to: "string"});
 
@@ -148,7 +148,7 @@ const server = {
                 }
             } else {
                 // customBigImageUpdate("POST", "http://127.0.0.1:8000/luckysheetimageprocess/", d)
-                customBigImageUpdate(customConfig.method, customConfig.url, d)
+                customBigImageUpdate(customImgUpdateConfig.method, customImgUpdateConfig.url, d)
                     .then((data) => {
                         console.log(data);
                     })
