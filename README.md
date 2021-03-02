@@ -38,7 +38,7 @@ luckysheetConfigsetting.bigImageSendMethod = extendsetting.bigImageUpdateMethod;
 ```
 ![core自定义图片配置](./readmeImages/core自定义图片配置.png)
 ######3、 src/controllers/里面添加一个自定义js文件，把发送图片函数写进去
-代码块较多，详细请查看 [src/controllers/bigImageUpdate.js](./luckysheet_obj/Luckysheet-master/src/controllers/bigImageUpdate.js)
+代码块较多，详细请查看 [src/controllers/imageUpdateCtrl.js](luckysheet_obj/Luckysheet-master/src/controllers/imageUpdateCtrl.js)
 
 ![自定义图片发送方式](./readmeImages/自定义图片发送方式.png)
 

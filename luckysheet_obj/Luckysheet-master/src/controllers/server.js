@@ -19,7 +19,7 @@ import locale from '../locale/locale';
 import dayjs from "dayjs";
 import json from '../global/json';
 import luckysheetConfigsetting from './luckysheetConfigsetting';
-import {customBigImageUpdate} from './bigImageUpdate'
+import {customImageUpdate} from './imageUpdateCtrl'
 
 const server = {
     gridKey: null,
@@ -138,8 +138,8 @@ const server = {
         // }
 
         // TODO 使用自定义方式同步图片
-        const customImgUpdateConfig = luckysheetConfigsetting.bigImageUpdateMethod
-        if (JSON.stringify(customImgUpdateConfig) !== "{}") {
+        const customImageUpdateMethodConfig = luckysheetConfigsetting.imageUpdateMethodConfig
+        if (JSON.stringify(customImageUpdateMethodConfig) !== "{}") {
             if ("images" != d.k) {
                 let msg = pako.gzip(encodeURIComponent(JSON.stringify(d)), {to: "string"});
 
@@ -147,8 +147,8 @@ const server = {
                     _this.websocket.send(msg);
                 }
             } else {
-                // customBigImageUpdate("POST", "http://127.0.0.1:8000/luckysheetimageprocess/", d)
-                customBigImageUpdate(customImgUpdateConfig.method, customImgUpdateConfig.url, d)
+                // customImageUpdate("POST", "http://127.0.0.1:8000/luckysheetimageprocess/", d)
+                customImageUpdate(customImageUpdateMethodConfig.method, customImageUpdateMethodConfig.url, d)
                     .then((data) => {
                         console.log(data);
                     })

@@ -1,5 +1,5 @@
 // 自定义大图片的更新方法
-function customBigImageUpdate(method, url, obj) {
+function customImageUpdate(method, url, obj) {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest() || new ActiveXObject("Microsoft.XMLHTTP");
         xhr.open(method, url);
@@ -17,5 +17,5 @@ function customBigImageUpdate(method, url, obj) {
 }
 
 export {
-    customBigImageUpdate
+    customImageUpdate
 }
