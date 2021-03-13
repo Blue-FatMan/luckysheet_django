@@ -66,5 +66,5 @@ export default {
     showstatisticBarConfig:{}, //自定义计数栏
     cellRightClickConfig:{}, //自定义单元格右键菜单
     sheetRightClickConfig:{}, //自定义底部sheet页右击菜单
-    imageUpdateMethodConfig:{"method":"POST", "url":"http://127.0.0.1:8000/luckysheetupdateurl"},  //自定义前端大图片大发送方式
+    imageUpdateMethodConfig:{"method":"POST", "url":"http://127.0.0.1:8000/luckysheetupdateurl"}, //自定义图片同步方式
 }
