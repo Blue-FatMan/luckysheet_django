@@ -50,7 +50,7 @@ export default {
     editMode: false, //是否为编辑模式
     beforeCreateDom: null,//表格创建之前的方法
     fireMousedown: null, //单元格数据下钻
-    lang: 'en', //language
+    lang: 'zh', //language
     plugins: [], //plugins, e.g. ['chart']
     forceCalculation:false,//强制刷新公式，公式较多会有性能问题，慎用
     rowHeaderWidth: 46,
