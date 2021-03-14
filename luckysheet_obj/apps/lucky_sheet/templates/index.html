@@ -1,0 +1,103 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>Hello World!</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel='stylesheet' href='http://localhost:3000/plugins/css/pluginsCss.css'/>
+    <link rel='stylesheet' href='http://localhost:3000/plugins/plugins.css'/>
+    <link rel='stylesheet' href='http://localhost:3000/css/luckysheet.css'/>
+    <link rel='stylesheet' href='http://localhost:3000/assets/iconfont/iconfont.css'/>
+    <script src="http://localhost:3000/plugins/js/plugin.js"></script>
+    <script src="http://localhost:3000/luckysheet.umd.js"></script>
+    <script>
+        $(function () {
+            //Configuration item
+            var options = {
+                container: 'luckysheet', //luckysheet is the container id
+                showinfobar: false,
+                lang: 'zh',
+                allowEdit: true,
+            }
+            luckysheet.create(options)
+        });
+    </script>
+</head>
+<body>
+{% csrf_token %}
+<div id="lucky-mask-demo"
+     style="position: absolute;z-index: 1000000;left: 0px;top: 0px;bottom: 0px;right: 0px; background: rgba(255, 255, 255, 0.8); text-align: center;font-size: 40px;align-items:center;justify-content: center;display: none;">
+    Downloading
+</div>
+<p style="text-align:center;">
+    <span style='font-size:14px;' id="local_gridkey" name="">当前k:</span>
+    <input style="font-size:14px;" type="file" id="Luckyexcel-demo-file" name="Luckyexcel-demo-file"
+           change="demoHandler"/>
+    <input style='font-size:14px;' type='text' id='Luckyexcel-demo-gridkey' name='Luckyexcel-demo-gridkey'
+           placeholder="加载K"/>
+    <button id="load-gridkey" style="font-size: 14px;">加载</button>
+    <button id="save-db" style="font-size: 14px;">存储至数据库</button>
+</p>
+<div id="luckysheet" style="margin:0px;padding:0px;position:absolute;width:100%;left: 0px;top: 50px;bottom: 0px;"></div>
+<script src="https://mengshukeji.gitee.io/luckyexceldemo/luckyexcel.js"></script>
+<script>
+    // 保存至数据库
+    $("#save-db").click(function (e) {
+        csrf_token = $("input[name='csrfmiddlewaretoken']").val();
+        data = luckysheet.toJson();
+        data = JSON.stringify(data); // 必须转一下才能发送到后台
+        $.ajax({
+            url: "{% url 'luckysheet_save_db' %}",
+            type: "POST",
+            dataType: "json",
+            data: {'data': data, 'csrfmiddlewaretoken': csrf_token},
+            success: function (data) {
+                status = data['status'];
+                local_gridkey = data['gridkey'];
+                luckysheet_data = data['data'];
+                if (status == 0) {
+                    // 把当前的gridkey显示出来便于分享
+                    $("#local_gridkey").html("当前K:" + local_gridkey);
+                    $("#local_gridkey").attr("name" + local_gridkey);
+                    luckysheet.create(luckysheet_data);
+                } else {
+                    alert("数据库存储失败，请重试!!!");
+                }
+            },
+            error: function (data) {
+                alert("报错");
+            }
+        });
+    });
+
+    // 从grdkey加载数据
+    $("#load-gridkey").click(function (e) {
+        csrf_token = $("input[name='csrfmiddlewaretoken']").val();
+        local_gridkey = $("#Luckyexcel-demo-gridkey").val();
+        $.ajax({
+            url: "{% url 'luckysheet_load_gridkey' %}",
+            type: "GET",
+            dataType: "json",
+            data: {'gridKey': local_gridkey, 'csrfmiddlewaretoken': csrf_token},
+            success: function (data) {
+                status = data['status'];
+                local_gridkey = data['gridkey'];
+                luckysheet_data = data['data'];
+                if (status == 0) {
+                    // 把当前的gridkey显示出来便于分享
+                    $("#local_gridkey").html("当前K:" + local_gridkey);
+                    luckysheet.create(luckysheet_data);
+                } else {
+                    alert("数据获取失败，请重试!!!");
+                }
+            },
+            error: function (data) {
+                alert("报错");
+            }
+        });
+    });
+</script>
+</body>
+</html>

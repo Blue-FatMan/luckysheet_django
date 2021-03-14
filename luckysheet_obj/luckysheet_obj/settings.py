@@ -139,3 +139,31 @@ MIDDLEWARE_CLASSES = ['dwebsocket.middleware.WebSocketMiddleware']
 WEBSOCKET_ACCEPT_ALL = True
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
+
+# 配置上传附件请求的表单包含的字段大小
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 102400
+
+# 协同加载url
+WSS_LOAD_URL = 'http://127.0.0.1:8000/luckysheetloadurl/'
+
+# 协同更新url
+WSS_UPDATE_URL = 'ws://127.0.0.1:8000/luckysheetupdateurl'
+
+# redis配置
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "CONNECTION_POOL_KWARGS": {"max_connections": 1000}
+            # "PASSWORD": "123",
+        }
+    }
+}
+
+REDIS_CONN = {
+    'HOST': '127.0.0.1',
+    'PORT': 6379,
+    'DB': 0,
+}
