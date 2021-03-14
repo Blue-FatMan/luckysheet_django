@@ -56,6 +56,15 @@ luckysheetConfigsetting.bigImageSendMethod = extendsetting.bigImageUpdateMethod;
 ### 初始化加载excel的效果图加载失败
 1、 src\controllers\constant.js 里面将加载图片的路径改为 image://static/css/loading.gif
 
+### 后台数据是如何保存的
+```angular2html
+1、 通过新页面上传，通过toJson的aip获取到数据，发送给后台，后台一边保存mysql一边放至redis
+2、 如果是新进来的excel则全部放到redis里面，如果是已经有的，则更新已有的值
+3、 定时从redis里面把每一个excel记录固化到mysql数据库中
+4、 重新进入excel编辑的时候，通过gridekey从redis/mysql 获取最新的excel内容
+键值更新方法：先获取sheet索引，然后再获取到具体的一个小格子位置，如果有则更新，没有则新增
+```
+
 ### 当前问题
 1、新建一个sheet页的时候，如果别的客户端不点击这个新页面一下电话，那新建一方在新sheet页面的修改就不会被同步到其他客户端。因此别的客户端必须点击
 一下新的sheet页，才能把新sheet页的修改同步过来。--2021/02/01
