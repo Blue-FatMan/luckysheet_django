@@ -52,7 +52,7 @@
             updateUrl: "ws://127.0.0.1:8000/luckysheetupdateurl",
             loadUrl: "{% url 'lucky_sheet_loadurl' %}",
             // gridKey loadUrl的提交参数
-            //"gridKey": "1079500#-8803#7c45f52b7d01486d88bc53cb17dcd2c3",
+            gridKey: "{{ gridkey }}",
             {#loadSheetUrl: "http://luckysheet.lashuju.com/luckysheet/api/loadsheet"#}
         });
     });
