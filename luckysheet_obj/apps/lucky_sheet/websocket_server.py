@@ -17,6 +17,7 @@ import uuid
 import time
 from lucky_sheet import jvm_tool
 from lucky_sheet.log import logger
+from lucky_sheet import luckysheet_update
 
 WEB_SOCKET_CLIENT = dict()
 
@@ -25,7 +26,8 @@ WEB_SOCKET_CLIENT = dict()
 
 
 # 发送websocket消息
-def send_websocket_message(userid, res):
+def send_websocket_message(userid, grid_key, res):
+    luckysheet_update.update_operate(grid_key, res)
     # 添加多人协同编辑的时候，给其他人选区的位置标红
     # type: # 0：连接成功，1：发送给当前连接的用户，2：发送信息给其他用户，3：发送选区位置信息，999：用户连接断开
     t = res.get("t", None)
@@ -44,20 +46,31 @@ def send_websocket_message(userid, res):
     }
     for _client in list(WEB_SOCKET_CLIENT.keys()):
         # 把自己的操作去掉，只给别的客户端更新操作
+        # 如果没有gridkey，则默认给所有没有gridkey的客户端同步消息，主要是首页演示使用
         if _client != userid:
             logger.info("sed to %s" % _client)
-            request = WEB_SOCKET_CLIENT.get(_client)
+            request = WEB_SOCKET_CLIENT.get(_client).get("userid")
             # print("the web socket receive message message is: ", new_msg)
+            request.send(json.dumps(new_msg))  # 发送消息到客户端
+
+        # 如果有gridkey，则根据gridkey返回更新值，实际应用场景使用
+        __gridkey = WEB_SOCKET_CLIENT.get(_client).get("grid_key", "")
+        if __gridkey == grid_key:
+            request = WEB_SOCKET_CLIENT.get(_client).get("userid")
             request.send(json.dumps(new_msg))  # 发送消息到客户端
 
 
 @accept_websocket
 def websocket_update_url(request):
     userid = str(uuid.uuid1())
+    grid_key = request.GET.get("g", "")
     # 每个客户端请求进来的时候，只会走一次这个流程，因此在这里面设置一个uuid
     if request.is_websocket():
-        WEB_SOCKET_CLIENT[userid] = request.websocket
+        WEB_SOCKET_CLIENT[userid] = dict()
+        WEB_SOCKET_CLIENT[userid]["userid"] = request.websocket
+        WEB_SOCKET_CLIENT[userid]["grid_key"] = grid_key
     if not request.is_websocket():  # 判断是不是websocket连接
+        print("the request is not a websocket request!!!")
         return HttpResponse("the request is not a websocket request!!!")
     else:
         logger.info("txt message---")
@@ -65,7 +78,7 @@ def websocket_update_url(request):
             # 如果什么都没收到那就判定为客户端退出了
             if not message:
                 logger.info("the userid:%s has exit!!!" % userid)
-                WEB_SOCKET_CLIENT[userid].close()
+                WEB_SOCKET_CLIENT[userid]["userid"].close()
                 del WEB_SOCKET_CLIENT[userid]
                 return HttpResponse("the userid:%s has exit!!!" % userid)
             # 如果客户端长时间不活动，则会自动发送一个“rub”字符串到后台，因此做个过滤
@@ -75,19 +88,20 @@ def websocket_update_url(request):
                     "returnMessage": "success",
                 }
                 logger.info(message)
-                WEB_SOCKET_CLIENT[userid].send(json.dumps(res))
+                WEB_SOCKET_CLIENT[userid]["userid"].send(json.dumps(res))
             else:
                 jpy = jvm_tool.jpython_obj
                 res = jpy.unCompressURI(message)
                 res = json.loads(str(res))
                 logger.info(res)
-                send_websocket_message(userid, res)
+                send_websocket_message(userid, grid_key, res)
 
 
 # 处理ajax接收到的图片消息
 def websocket_update_image_url(request):
+    grid_key = ""
     logger.info("images message---")
     res = json.loads(request.body)
     userid = res.get("username", "None")
-    send_websocket_message(userid, res)
+    send_websocket_message(userid, grid_key, res)
     return HttpResponse("send images success!!!")

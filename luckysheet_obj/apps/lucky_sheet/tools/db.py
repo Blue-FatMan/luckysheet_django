@@ -30,6 +30,8 @@
 import redis
 import io
 import os
+import traceback
+from lucky_sheet.log import logger
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'luckysheet_obj.settings')
 
@@ -40,11 +42,24 @@ class RedisDB(object):
                                          port=django_settings.REDIS_CONN['PORT'],
                                          db=django_settings.REDIS_CONN['DB'])
         self.redis = redis.Redis(connection_pool=self.pool)
+        self.ok = 0
+        self.err = -1
 
     # string插入
     def insert_string(self, key, value):
-        self.redis.set(key, value)
+        try:
+            self.redis.set(key, value)
+            return self.ok
+        except Exception as e:
+            logger.error("insert the gridkey:%s to redis error !!!" % key)
+            print(traceback.format_exc())
+            return self.err
 
     # string取值
     def get_string(self, key):
-        return self.redis.get(key)
+        try:
+            return self.redis.get(key)
+        except Exception as e:
+            logger.error("get the gridkey:%s from redis error !!!" % key)
+            print(traceback.format_exc())
+            return self.err

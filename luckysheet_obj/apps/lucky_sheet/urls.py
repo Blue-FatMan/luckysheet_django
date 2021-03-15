@@ -28,7 +28,7 @@ urlpatterns = [
     url(r'^luckysheetindex/$', LuckySheetIndex.as_view(), name="lucky_sheet_index"),  # luckysheet主页
     url(r'^luckysheetloadurl/', LuckySheetLoadUrl.as_view(), name="lucky_sheet_loadurl"),  # lucky_sheet_loadurl
     url(r'^luckysheetupdateurl', luckysheet_update_url, name="luckysheet_update_url"),  # lucky_sheet_loadurl
-    url(r'^luckysheetsacedb/', LuckySheetSaveDb.as_view(), name="luckysheet_save_db"),  # luckysheet_save_db
+    url(r'^luckysheetsavedb/', LuckySheetSaveDb.as_view(), name="luckysheet_save_db"),  # luckysheet_save_db
     url(r'^luckysheetloadgridkey/', LuckySheetLoadGridKey.as_view(), name="luckysheet_load_gridkey"),  # luckysheet_save_db
     url(r'^luckysheetindex/static/(?P<path>.*)$', static.serve, {'document_root': settings.STATIC_ROOT}, name='static'),
 ]

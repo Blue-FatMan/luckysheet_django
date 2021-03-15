@@ -57,8 +57,11 @@ class LuckySheetLoadUrl(View):
         # 该判断是为了在用户刚开始上传excel的时候，点击保存数据库之后，从redis再加载一边数据，作为协同使用
         if gridkey:
             init_json = redis_obj.get_string(gridkey)
-            init_json = json.loads(init_json)
-            init_json = json.dumps(init_json.get("data"))
+            if init_json != -1:
+                init_json = json.loads(init_json)
+                init_json = json.dumps(init_json.get("data"))
+            else:
+                init_json = dict()
         return HttpResponse('%s' % init_json)
 
 
@@ -83,7 +86,11 @@ class LuckySheetLoadGridKey(View):
     def get(self, request):
         gridKey = request.GET.get("gridKey")
         luckysheet_data = redis_obj.get_string(gridKey)
-        luckysheet_data = json.loads(luckysheet_data)
+        if luckysheet_data:
+            luckysheet_data = json.loads(luckysheet_data)
+        else:
+            logger.info("the gridkey does not exists %s" % gridKey)
+            luckysheet_data = dict()
         return HttpResponse(json.dumps({"status": 0, "data": luckysheet_data, "gridkey": gridKey}))
 
     def post(self, request):
