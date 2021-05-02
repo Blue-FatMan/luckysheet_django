@@ -60,14 +60,14 @@ class LuckySheetUpdate(object):
         :return:
         """
         source_data = self.source_json_data.get("data", list())
-        new_data = self.json_obj.get("v")
+        new_v = self.json_obj.get("v")
         new_i = self.json_obj.get("i")
         new_r = self.json_obj.get("r")
         new_c = self.json_obj.get("c")
         new_cell_data = dict()
         new_cell_data["r"] = new_r
         new_cell_data["c"] = new_c
-        new_cell_data["v"] = new_data
+        new_cell_data["v"] = new_v
         source_hasit = False
         for i, _ in enumerate(source_data):
             print("_[index], ", _["index"], type(_["index"]))
@@ -75,12 +75,12 @@ class LuckySheetUpdate(object):
                 for j, item in enumerate(_["celldata"]):
                     source_r, source_c = item["r"], item["c"]
                     if new_r == source_r and new_c == source_c:
-                        self.source_json_data["data"][i]["celldata"][j]["v"].update(new_data)
+                        self.source_json_data["data"][i]["celldata"][j]["v"].update(new_v)
                         source_hasit = True
                         break
                 if not source_hasit:
                     self.source_json_data["data"][i]["celldata"].append(new_cell_data)
-                self.source_json_data["data"][i]["data"][int(new_r)][int(new_c)] = new_data
+                self.source_json_data["data"][i]["data"][int(new_r)][int(new_c)] = new_v
 
     # 保存到redis
     def save_redis(self):
