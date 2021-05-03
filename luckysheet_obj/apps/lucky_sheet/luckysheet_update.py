@@ -25,6 +25,10 @@ def update_operate(grid_key, json_obj):
     # 单个单元格刷新
     elif "v" == t:
         lucky_sheet.single_cell_refresh()
+    # 范围单元格刷新
+    elif "rv" == t:
+        lucky_sheet.range_cell_refresh()
+
     lucky_sheet.save_redis()
 
 
@@ -37,7 +41,8 @@ class LuckySheetUpdate(object):
         if source_json_data:
             self.source_json_data = json.loads(source_json_data)
         else:
-            self.source_json_data = {}
+            self.source_json_data = {"data": []}
+        print(self.source_json_data)
 
     # 插入新sheet页面
     def insert_sheet(self):
@@ -49,6 +54,8 @@ class LuckySheetUpdate(object):
         new_sheet = self.json_obj.get("v")
         source_sheet_name = [_["name"] for _ in self.source_json_data["data"]]
         if new_sheet["name"] not in source_sheet_name:
+            null_array = self.null_array(new_sheet["row"], new_sheet["column"])
+            new_sheet["data"] = null_array
             source_data.append(new_sheet)
         self.source_json_data["data"] = source_data
 
@@ -70,7 +77,6 @@ class LuckySheetUpdate(object):
         new_cell_data["v"] = new_v
         source_hasit = False
         for i, _ in enumerate(source_data):
-            print("_[index], ", _["index"], type(_["index"]))
             if str(new_i) == str(_["index"]):
                 for j, item in enumerate(_["celldata"]):
                     source_r, source_c = item["r"], item["c"]
@@ -82,7 +88,63 @@ class LuckySheetUpdate(object):
                     self.source_json_data["data"][i]["celldata"].append(new_cell_data)
                 self.source_json_data["data"][i]["data"][int(new_r)][int(new_c)] = new_v
 
+    # 范围单元格刷新
+    def range_cell_refresh(self):
+        """
+        收到的数据如下, 范围单元格更新的时候，只会传过来左上角和右上角的坐标，需要自己对应一下
+        {"t": "rv", "i": "1", "v": [[{"tb": 1, "v": "是的", "qp": 1, "m": "是的", "ct": {"fa": "@", "t": "s"}}, {}], [{}, {}], [{}, {"tb": 1, "v": "是", "qp": 1, "m": "是", "ct": {"fa": "@", "t": "s"}}]], "range": {"row": [10, 12], "column": [11, 12]}}
+        :return:
+        """
+        source_data = self.source_json_data.get("data", list())
+        new_v_list = self.json_obj.get("v")
+        new_i = self.json_obj.get("i")
+        left_upper = [self.json_obj.get("range")["row"][0], self.json_obj.get("range")["column"][0]]
+        right_upper = [self.json_obj.get("range")["row"][1], self.json_obj.get("range")["column"][1]]
+
+        new_r_i = 0  # 定义row的索引
+        for new_r in range(left_upper[0], right_upper[0] + 1):
+            new_c_i = 0  # 定义col的索引
+            for new_c in range(left_upper[1], right_upper[1] + 1):
+                new_v = new_v_list[new_r_i][new_c_i]
+                # print(new_r, new_c, new_r_i, new_c_i, new_v)
+                new_cell_data = dict()
+                new_cell_data["r"] = new_r
+                new_cell_data["c"] = new_c
+                new_cell_data["v"] = new_v
+                source_hasit = False
+                for i, _ in enumerate(source_data):
+                    if str(new_i) == str(_["index"]):
+                        for j, item in enumerate(_["celldata"]):
+                            source_r, source_c = item["r"], item["c"]
+                            if new_r == source_r and new_c == source_c:
+                                self.source_json_data["data"][i]["celldata"][j]["v"].update(new_v)
+                                source_hasit = True
+                                break
+                        if not source_hasit:
+                            self.source_json_data["data"][i]["celldata"].append(new_cell_data)
+                        self.source_json_data["data"][i]["data"][int(new_r)][int(new_c)] = new_v
+
+                new_c_i = new_c_i + 1
+            new_r_i = new_r_i + 1
+
+    # 返回一个m行n列的一个空数组
+    def null_array(self, m, n):
+        """
+        :param m:
+        :param n:
+        :return: 返回m行数组，每个数组有n列个空字典
+        """
+        m = int(m)
+        n = int(n)
+        array_data = []
+        for i in range(m):
+            tmp = []
+            for j in range(n):
+                tmp.append({})
+            array_data.append(tmp)
+        return array_data
+
     # 保存到redis
     def save_redis(self):
-        print(self.source_json_data)
+        # print(self.source_json_data)
         redis_obj.insert_string(self.grid_key, '''%s''' % json.dumps(self.source_json_data))
