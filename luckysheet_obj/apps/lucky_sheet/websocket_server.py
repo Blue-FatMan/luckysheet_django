@@ -55,7 +55,7 @@ def send_websocket_message(userid, grid_key, res):
 
         # 如果有gridkey，则根据gridkey返回更新值，实际应用场景使用
         __gridkey = WEB_SOCKET_CLIENT.get(_client).get("grid_key", "")
-        if __gridkey == grid_key:
+        if not __gridkey:
             request = WEB_SOCKET_CLIENT.get(_client).get("userid")
             request.send(json.dumps(new_msg))  # 发送消息到客户端
 

@@ -42,7 +42,6 @@ class LuckySheetUpdate(object):
             self.source_json_data = json.loads(source_json_data)
         else:
             self.source_json_data = {"data": []}
-        print(self.source_json_data)
 
     # 插入新sheet页面
     def insert_sheet(self):
