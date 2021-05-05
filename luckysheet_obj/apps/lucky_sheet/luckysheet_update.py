@@ -28,6 +28,9 @@ def update_operate(grid_key, json_obj):
     # 范围单元格刷新
     elif "rv" == t:
         lucky_sheet.range_cell_refresh()
+    # config操作
+    elif "cg" == t:
+        lucky_sheet.config_refresh()
 
     lucky_sheet.save_redis()
 
@@ -125,6 +128,20 @@ class LuckySheetUpdate(object):
 
                 new_c_i = new_c_i + 1
             new_r_i = new_r_i + 1
+
+    # config操作
+    def config_refresh(self):
+        """
+        修改config中的某个配置时，会把这个配置全部传输到后台，即每次都把当前配置全部重新发送至后台
+        :return:
+        """
+        source_data = self.source_json_data.get("data", list())
+        new_v = self.json_obj.get("v")
+        new_i = self.json_obj.get("i")
+        new_k = self.json_obj.get("k")
+        for i, _ in enumerate(source_data):
+            if str(new_i) == str(_["index"]):
+                self.source_json_data["data"][i]["config"].update({new_k: new_v})
 
     # 返回一个m行n列的一个空数组
     def null_array(self, m, n):
