@@ -31,6 +31,9 @@ def update_operate(grid_key, json_obj):
     # config操作
     elif "cg" == t:
         lucky_sheet.config_refresh()
+    # 通用保存
+    elif "all" == t:
+        lucky_sheet.all_refresh()
 
     lucky_sheet.save_redis()
 
@@ -142,6 +145,16 @@ class LuckySheetUpdate(object):
         for i, _ in enumerate(source_data):
             if str(new_i) == str(_["index"]):
                 self.source_json_data["data"][i]["config"].update({new_k: new_v})
+
+    # 通用保存
+    def all_refresh(self):
+        source_data = self.source_json_data.get("data", list())
+        new_v = self.json_obj.get("v")
+        new_i = self.json_obj.get("i")
+        new_k = self.json_obj.get("k")
+        for i, _ in enumerate(source_data):
+            if str(new_i) == str(_["index"]):
+                self.source_json_data["data"][i].update({new_k: new_v})
 
     # 返回一个m行n列的一个空数组
     def null_array(self, m, n):
