@@ -89,6 +89,8 @@ class LuckySheetUpdate(object):
                     source_r, source_c = item["r"], item["c"]
                     if new_r == source_r and new_c == source_c:
                         try:
+                            if not self.source_json_data["data"][i]["celldata"][j].get("v", None):
+                                self.source_json_data["data"][i]["celldata"][j]["v"] = {}
                             self.source_json_data["data"][i]["celldata"][j]["v"].update(new_v)
                         except:
                             # 如果更新过来的是直接的值，那么需要同时更新v和m，例如下面的
@@ -123,6 +125,8 @@ class LuckySheetUpdate(object):
                 new_cell_data["r"] = new_r
                 new_cell_data["c"] = new_c
                 new_cell_data["v"] = new_v
+                if not new_v:
+                    new_v = {}
                 source_hasit = False
                 for i, _ in enumerate(self.source_data):
                     if str(new_i) == str(_["index"]):

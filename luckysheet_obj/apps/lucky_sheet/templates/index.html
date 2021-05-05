@@ -12,6 +12,7 @@
     <link rel='stylesheet' href='http://localhost:3000/assets/iconfont/iconfont.css'/>
     <script src="http://localhost:3000/plugins/js/plugin.js"></script>
     <script src="http://localhost:3000/luckysheet.umd.js"></script>
+
     <script>
         $(function () {
             //Configuration item
@@ -20,6 +21,8 @@
                 showinfobar: false,
                 lang: 'zh',
                 allowEdit: true,
+                forceCalculation: false,
+                plugins: ['chart'],
             }
             luckysheet.create(options)
         });
@@ -42,6 +45,19 @@
 </p>
 <div id="luckysheet" style="margin:0px;padding:0px;position:absolute;width:100%;left: 0px;top: 50px;bottom: 0px;"></div>
 <script src="https://mengshukeji.gitee.io/luckyexceldemo/luckyexcel.js"></script>
+<link rel='stylesheet' href='http://localhost:3000/expendPlugins/chart/chartmix.css'/>
+<script src="http://localhost:3000/expendPlugins/chart/chartmix.umd.min.js"></script>
+<script src="http://localhost:3000/demoData/sheetCell.js"></script>
+<script src="http://localhost:3000/demoData/sheetCell.js"></script>
+<script src="http://localhost:3000/demoData/sheetTable.js"></script>
+<script src="http://localhost:3000/demoData/sheetSparkline.js"></script>
+<script src="http://localhost:3000/demoData/sheetDataVerification.js"></script>
+<script src="http://localhost:3000/demoData/sheetConditionFormat.js"></script>
+<script src="http://localhost:3000/demoData/sheetPivotTable.js"></script>
+<script src="http://localhost:3000/demoData/sheetComment.js"></script>
+<script src="http://localhost:3000/demoData/sheetFormula.js"></script>
+<script src="http://localhost:3000/demoData/sheetPivotTableData.js"></script>
+<script src="http://localhost:3000/demoData/sheetPicture.js"></script>
 <script>
     // 保存至数据库
     $("#save-db").click(function (e) {
