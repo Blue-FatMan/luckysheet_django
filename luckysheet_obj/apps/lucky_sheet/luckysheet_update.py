@@ -34,6 +34,9 @@ def update_operate(grid_key, json_obj):
     # 通用保存
     elif "all" == t:
         lucky_sheet.all_refresh()
+    # 函数链操作
+    elif "fc" == t:
+        lucky_sheet.calc_chain_refresh()
 
     lucky_sheet.save_redis()
 
@@ -48,6 +51,7 @@ class LuckySheetUpdate(object):
             self.source_json_data = json.loads(source_json_data)
         else:
             self.source_json_data = {"data": []}
+        self.source_data = self.source_json_data.get("data", list())
 
     # 插入新sheet页面
     def insert_sheet(self):
@@ -55,14 +59,13 @@ class LuckySheetUpdate(object):
         新增sheet页面的时候，需要找到data键,然后添加进去，data是一个列表形式，包含多个sheet页，可以直接append
         :return:
         """
-        source_data = self.source_json_data.get("data", list())
         new_sheet = self.json_obj.get("v")
         source_sheet_name = [_["name"] for _ in self.source_json_data["data"]]
         if new_sheet["name"] not in source_sheet_name:
             null_array = self.null_array(new_sheet["row"], new_sheet["column"])
             new_sheet["data"] = null_array
-            source_data.append(new_sheet)
-        self.source_json_data["data"] = source_data
+            self.source_data.append(new_sheet)
+        self.source_json_data["data"] = self.source_data
 
     # 单个单元格刷新
     def single_cell_refresh(self):
@@ -71,7 +74,6 @@ class LuckySheetUpdate(object):
         参考：https://mengshukeji.github.io/LuckysheetDocs/zh/guide/FAQ.html#dist%E6%96%87%E4%BB%B6%E5%A4%B9%E4%B8%8B%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%83%BD%E7%9B%B4%E6%8E%A5%E8%BF%90%E8%A1%8C%E9%A1%B9%E7%9B%AE
         :return:
         """
-        source_data = self.source_json_data.get("data", list())
         new_v = self.json_obj.get("v")
         new_i = self.json_obj.get("i")
         new_r = self.json_obj.get("r")
@@ -81,12 +83,18 @@ class LuckySheetUpdate(object):
         new_cell_data["c"] = new_c
         new_cell_data["v"] = new_v
         source_hasit = False
-        for i, _ in enumerate(source_data):
+        for i, _ in enumerate(self.source_data):
             if str(new_i) == str(_["index"]):
                 for j, item in enumerate(_["celldata"]):
                     source_r, source_c = item["r"], item["c"]
                     if new_r == source_r and new_c == source_c:
-                        self.source_json_data["data"][i]["celldata"][j]["v"].update(new_v)
+                        try:
+                            self.source_json_data["data"][i]["celldata"][j]["v"].update(new_v)
+                        except:
+                            # 如果更新过来的是直接的值，那么需要同时更新v和m，例如下面的
+                            # {'t': 'v', 'i': 0, 'v': 8, 'r': 7, 'c': 0}
+                            self.source_json_data["data"][i]["celldata"][j]["v"]["v"] = new_v
+                            self.source_json_data["data"][i]["celldata"][j]["v"]["m"] = new_v
                         source_hasit = True
                         break
                 if not source_hasit:
@@ -100,7 +108,6 @@ class LuckySheetUpdate(object):
         {"t": "rv", "i": "1", "v": [[{"tb": 1, "v": "是的", "qp": 1, "m": "是的", "ct": {"fa": "@", "t": "s"}}, {}], [{}, {}], [{}, {"tb": 1, "v": "是", "qp": 1, "m": "是", "ct": {"fa": "@", "t": "s"}}]], "range": {"row": [10, 12], "column": [11, 12]}}
         :return:
         """
-        source_data = self.source_json_data.get("data", list())
         new_v_list = self.json_obj.get("v")
         new_i = self.json_obj.get("i")
         left_upper = [self.json_obj.get("range")["row"][0], self.json_obj.get("range")["column"][0]]
@@ -117,7 +124,7 @@ class LuckySheetUpdate(object):
                 new_cell_data["c"] = new_c
                 new_cell_data["v"] = new_v
                 source_hasit = False
-                for i, _ in enumerate(source_data):
+                for i, _ in enumerate(self.source_data):
                     if str(new_i) == str(_["index"]):
                         for j, item in enumerate(_["celldata"]):
                             source_r, source_c = item["r"], item["c"]
@@ -138,23 +145,45 @@ class LuckySheetUpdate(object):
         修改config中的某个配置时，会把这个配置全部传输到后台，即每次都把当前配置全部重新发送至后台
         :return:
         """
-        source_data = self.source_json_data.get("data", list())
         new_v = self.json_obj.get("v")
         new_i = self.json_obj.get("i")
         new_k = self.json_obj.get("k")
-        for i, _ in enumerate(source_data):
+        for i, _ in enumerate(self.source_data):
             if str(new_i) == str(_["index"]):
                 self.source_json_data["data"][i]["config"].update({new_k: new_v})
 
     # 通用保存
     def all_refresh(self):
-        source_data = self.source_json_data.get("data", list())
         new_v = self.json_obj.get("v")
         new_i = self.json_obj.get("i")
         new_k = self.json_obj.get("k")
-        for i, _ in enumerate(source_data):
+        for i, _ in enumerate(self.source_data):
             if str(new_i) == str(_["index"]):
                 self.source_json_data["data"][i].update({new_k: new_v})
+
+    # 函数链操作
+    def calc_chain_refresh(self):
+        """
+        函数链操作, 如果op的值为add则添加到末尾, update则更新pos索引，del则删除pos索引
+        :return:
+        """
+        new_v = self.json_obj.get("v")
+        new_v = json.loads(new_v)
+        new_i = self.json_obj.get("i")
+        new_op = self.json_obj.get("op")  # 操作类型,add为新增，update为更新，del为删除
+        new_ops = self.json_obj.get("pos")  # 更新或者删除的函数位置
+        for i, _ in enumerate(self.source_data):
+            if str(new_i) == str(_["index"]):
+                if not self.source_json_data["data"][i].get("calcChain", None):
+                    self.source_json_data["data"][i]["calcChain"] = []
+                if new_op == "add":
+                    self.source_json_data["data"][i]["calcChain"].append(new_v)
+                elif new_op == "update":
+                    self.source_json_data["data"][i]["calcChain"][int(new_ops)].update(new_v)
+                elif new_op == "del":
+                    del self.source_json_data["data"][i]["calcChain"][int(new_ops)]
+                else:
+                    pass
 
     # 返回一个m行n列的一个空数组
     def null_array(self, m, n):
