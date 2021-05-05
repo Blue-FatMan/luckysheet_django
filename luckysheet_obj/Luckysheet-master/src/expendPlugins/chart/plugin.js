@@ -25,14 +25,16 @@ const dependScripts = [
     'https://unpkg.com/vuex@3.4.0',
     'https://cdn.bootcdn.net/ajax/libs/element-ui/2.13.2/index.js',
     'https://cdn.bootcdn.net/ajax/libs/echarts/4.8.0/echarts.min.js',
-    'expendPlugins/chart/chartmix.umd.min.js',
+    // 'expendPlugins/chart/chartmix.umd.min.js',
     // 'http://26.26.26.1:8000/chartmix.umd.js'
+    'http://localhost:3000/expendPlugins/chart/chartmix.umd.min.js'
 ]
 
 const dependLinks = [
     'https://cdn.bootcdn.net/ajax/libs/element-ui/2.13.2/theme-chalk/index.css',
-    'expendPlugins/chart/chartmix.css',
+    // 'expendPlugins/chart/chartmix.css',
     // 'http://26.26.26.1:8000/chartmix.css'
+    'http://localhost:3000/expendPlugins/chart/chartmix.css',
 ]
 
 // Initialize the chart component
