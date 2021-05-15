@@ -37,6 +37,9 @@ def update_operate(grid_key, json_obj):
     # 函数链操作
     elif "fc" == t:
         lucky_sheet.calc_chain_refresh()
+    # 删除行或列
+    elif "drc" == t:
+        lucky_sheet.drc_refresh()
 
     lucky_sheet.save_redis()
 
@@ -172,7 +175,10 @@ class LuckySheetUpdate(object):
         :return:
         """
         new_v = self.json_obj.get("v")
-        new_v = json.loads(new_v)
+        try:
+            new_v = json.loads(new_v)
+        except:
+            pass
         new_i = self.json_obj.get("i")
         new_op = self.json_obj.get("op")  # 操作类型,add为新增，update为更新，del为删除
         new_ops = self.json_obj.get("pos")  # 更新或者删除的函数位置
@@ -188,6 +194,59 @@ class LuckySheetUpdate(object):
                     del self.source_json_data["data"][i]["calcChain"][int(new_ops)]
                 else:
                     pass
+
+    # 删除行或列
+    def drc_refresh(self):
+        """
+        删除行或列, 如果rc的值是'r'删除行， 如果rc的值为'c'则删除列
+        :return:
+        """
+        new_v = self.json_obj.get("v")
+        new_v_index = int(new_v.get("index"))
+        new_v_len = int(new_v.get("len"))
+        new_i = self.json_obj.get("i")
+        new_rc = self.json_obj.get("rc")
+        for i, _ in enumerate(self.source_data):
+            if str(new_i) == str(_["index"]):
+                source_column = self.source_json_data["data"][i]["column"]
+                source_row = self.source_json_data["data"][i]["row"]
+
+                if new_rc == "r":
+                    self.source_json_data["data"][i]["row"] = int(source_row) - new_v_len
+                if new_rc == "c":
+                    self.source_json_data["data"][i]["column"] = int(source_column) - new_v_len
+
+                for j, item in enumerate(_["celldata"]):
+                    source_r, source_c = item["r"], item["c"]
+                    if new_rc == "r":
+                        if new_v_index > int(source_r):
+                            pass
+                        elif new_v_index <= int(source_r) < new_v_index + new_v_len:
+                            del self.source_json_data["data"][i]["celldata"][j]
+                        else:
+                            self.source_json_data["data"][i]["celldata"][j]["r"] = int(source_r) - new_v_len
+                    if new_rc == "c":
+                        if new_v_index > int(source_c):
+                            pass
+                        elif new_v_index <= int(source_c) < new_v_index + new_v_len:
+                            del self.source_json_data["data"][i]["celldata"][j]
+                        else:
+                            self.source_json_data["data"][i]["celldata"][j]["c"] = int(source_c) - new_v_len
+
+                if new_rc == "r":
+                    for _ in range(new_v_len):
+                        try:
+                            del self.source_json_data["data"][i]["data"][new_v_index]
+                        except:
+                            pass
+
+                    if new_rc == "c":
+                        for data_i in range(len(self.source_json_data["data"][i]["data"])):
+                            for _ in range(new_v_len):
+                                try:
+                                    del self.source_json_data["data"][i]["data"][data_i][new_v_index]
+                                except:
+                                    pass
 
     # 返回一个m行n列的一个空数组
     def null_array(self, m, n):
