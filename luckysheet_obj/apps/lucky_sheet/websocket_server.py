@@ -96,7 +96,7 @@ def websocket_update_url(request):
                 destr = zlib.decompress(
                     bytes(message, 'ISO-8859-1'), zlib.MAX_WBITS | 16)
                 result = urllib.parse.unquote_to_bytes(destr)
-                res = json.loads(result)
+                res = json.loads(str(result, 'utf-8'))
                 logger.info(res)
                 send_websocket_message(userid, grid_key, res)
 
