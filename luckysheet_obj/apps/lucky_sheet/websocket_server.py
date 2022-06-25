@@ -19,6 +19,7 @@ from lucky_sheet.log import logger
 from lucky_sheet import luckysheet_update
 import urllib.parse
 import zlib
+import lucky_sheet.jvm_tool as jvm_tool
 
 WEB_SOCKET_CLIENT = dict()
 
@@ -91,12 +92,12 @@ def websocket_update_url(request):
                 logger.info(message)
                 WEB_SOCKET_CLIENT[userid]["userid"].send(json.dumps(res))
             else:
-                # jpy = jvm_tool.jpython_obj
-                # res = jpy.unCompressURI(message)
-                destr = zlib.decompress(
-                    bytes(message, 'ISO-8859-1'), zlib.MAX_WBITS | 16)
-                result = urllib.parse.unquote_to_bytes(destr)
-                res = json.loads(str(result, 'utf-8'))
+                jpy = jvm_tool.jpython_obj
+                result = jpy.unCompressURI(message)
+                #destr = zlib.decompress(
+                #    bytes(message, 'ISO-8859-1'), zlib.MAX_WBITS | 16)
+                #result = urllib.parse.unquote_to_bytes(destr)
+                res = json.loads(str(result))
                 logger.info(res)
                 send_websocket_message(userid, grid_key, res)
 
