@@ -71,8 +71,9 @@ class LuckySheetSaveDb(View):
         return HttpResponse({})
 
     def post(self, request):
-        gridKey = str(uuid.uuid1())
+        #gridKey = str(uuid.uuid1())
         luckysheet_data = json.loads(request.POST.get("data"))
+        gridKey = luckysheet_data.get('gridKey', str(uuid.uuid1()))
         luckysheet_data['allowUpdate'] = True
         luckysheet_data['updateUrl'] = settings.WSS_UPDATE_URL
         luckysheet_data['loadUrl'] = settings.WSS_LOAD_URL

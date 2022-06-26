@@ -19,6 +19,7 @@ from lucky_sheet.log import logger
 from lucky_sheet import luckysheet_update
 import urllib.parse
 import zlib
+import lucky_sheet.jvm_tool as jvm_tool
 
 WEB_SOCKET_CLIENT = dict()
 
@@ -48,22 +49,32 @@ def send_websocket_message(userid, grid_key, res):
     for _client in list(WEB_SOCKET_CLIENT.keys()):
         # 把自己的操作去掉，只给别的客户端更新操作
         # 如果没有gridkey，则默认给所有没有gridkey的客户端同步消息，主要是首页演示使用
-        if _client != userid:
-            logger.info("sed to %s" % _client)
-            request = WEB_SOCKET_CLIENT.get(_client).get("userid")
+        #if _client != userid:
+        #    logger.info("sed to %s" % _client)
+        #    request = WEB_SOCKET_CLIENT.get(_client).get("userid")
             # print("the web socket receive message message is: ", new_msg)
-            request.send(json.dumps(new_msg))  # 发送消息到客户端
+        #    request.send(json.dumps(new_msg))  # 发送消息到客户端
 
         # 如果有gridkey，则根据gridkey返回更新值，实际应用场景使用
-        __gridkey = WEB_SOCKET_CLIENT.get(_client).get("grid_key", "")
-        if not __gridkey:
-            request = WEB_SOCKET_CLIENT.get(_client).get("userid")
-            request.send(json.dumps(new_msg))  # 发送消息到客户端
+        #__gridkey = WEB_SOCKET_CLIENT.get(_client).get("grid_key", "")
+        #if not __gridkey:
+        #    request = WEB_SOCKET_CLIENT.get(_client).get("userid")
+        #    request.send(json.dumps(new_msg))  # 发送消息到客户端
+        logger.info("user:" + _client)
+        if _client != userid:
+            __gridkey = WEB_SOCKET_CLIENT.get(_client).get("grid_key", "")
+            logger.info("grid_key: %s" % __gridkey)
+            if (not __gridkey) or (__gridkey == grid_key):
+                logger.info("sed to %s" %  _client)
+                request = WEB_SOCKET_CLIENT.get(_client).get("userid")
+                # print("the web socket receive message message is: ", new_msg)
+                request.send(json.dumps(new_msg))  # 发送消息到客户端
 
 
 @accept_websocket
 def websocket_update_url(request):
-    userid = str(uuid.uuid1())
+    #userid = str(uuid.uuid1())
+    userid = str(request.user) + "-" + request.META.get("REMOTE_ADDR", "unknownIP")
     grid_key = request.GET.get("g", "")
     # 每个客户端请求进来的时候，只会走一次这个流程，因此在这里面设置一个uuid
     if request.is_websocket():
@@ -91,12 +102,12 @@ def websocket_update_url(request):
                 logger.info(message)
                 WEB_SOCKET_CLIENT[userid]["userid"].send(json.dumps(res))
             else:
-                # jpy = jvm_tool.jpython_obj
-                # res = jpy.unCompressURI(message)
-                destr = zlib.decompress(
-                    bytes(message, 'ISO-8859-1'), zlib.MAX_WBITS | 16)
-                result = urllib.parse.unquote_to_bytes(destr)
-                res = json.loads(str(result, 'utf-8'))
+                jpy = jvm_tool.jpython_obj
+                result = jpy.unCompressURI(message)
+                #destr = zlib.decompress(
+                #    bytes(message, 'ISO-8859-1'), zlib.MAX_WBITS | 16)
+                #result = urllib.parse.unquote_to_bytes(destr)
+                res = json.loads(str(result))
                 logger.info(res)
                 send_websocket_message(userid, grid_key, res)
 
