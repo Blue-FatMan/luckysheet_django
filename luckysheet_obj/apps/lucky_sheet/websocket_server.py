@@ -64,7 +64,8 @@ def send_websocket_message(userid, grid_key, res):
 
 @accept_websocket
 def websocket_update_url(request):
-    userid = str(uuid.uuid1())
+    #userid = str(uuid.uuid1())
+    userid = str(request.user) + "@" + request.META.get("REMOTE_ADDR", "unknownIP")
     grid_key = request.GET.get("g", "")
     # 每个客户端请求进来的时候，只会走一次这个流程，因此在这里面设置一个uuid
     if request.is_websocket():
